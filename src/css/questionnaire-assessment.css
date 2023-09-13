@@ -1,0 +1,57 @@
+.questionnaire-assessment-view-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.questionnaire-assessment-view-container {
+    width: min(100%, 30rem);
+    margin: 5rem;
+}
+
+.question-answers {
+    display: flex;
+    flex-direction: column;
+}
+
+.questionnaire-assessment-select-btn.active {
+    color: #fff;
+    background-color: #00a7e1;
+}
+
+.questionnaire-assessment-next-btn {
+    height: 3.33em;
+    margin-top: 1rem;
+    border: 0;
+    border-radius: .4rem;
+    background-color: #00a7e1;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color .2s ease-in-out;
+}
+
+.questionnaire-assessment-next-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.questionnaire-assessment-select-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: .4rem;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.questionnaire-assessment-select-btn + .questionnaire-assessment-select-btn {
+    margin-top: .5rem;
+}
+
+.question-title {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.7rem;
+    margin: 0 0 .5rem;
+}
+
