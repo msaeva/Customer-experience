@@ -1,7 +1,7 @@
 import {useState} from "react";
-import '../css/simulation-input.css'
+import '../css/questionnaire-form.css'
 
-export default function QuestionnaireInput({setSelectedData}) {
+export default function QuestionnaireForm({setSelectedData}) {
     const [data, setData] = useState({
         customerId: 1,
         accountTradingType: 'CFD',
@@ -34,9 +34,9 @@ export default function QuestionnaireInput({setSelectedData}) {
 
     return (
         <div className='search-container'>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="category">Question Category:</label>
-                <select
+                <select className="search-input"
                     name="category"
                     id="category"
                     value={data.category}
@@ -46,9 +46,9 @@ export default function QuestionnaireInput({setSelectedData}) {
                     <option value="Appropriateness Test">Appropriateness Test</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="accountType">Account Type:</label>
-                <select
+                <select className="search-input"
                     name="accountType"
                     id="accountType"
                     value={data.accountTradingType}
@@ -58,9 +58,9 @@ export default function QuestionnaireInput({setSelectedData}) {
                     <option value="Equity">EQUITY</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="dealer">Dealer: </label>
-                <select
+                <select className="search-input"
                     name="dealer"
                     id="dealer"
                     value={data.dealer}
@@ -70,9 +70,9 @@ export default function QuestionnaireInput({setSelectedData}) {
                     <option value="T212CY">T212CY</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="version">Version:</label>
-                <select
+                <select className="search-input"
                     name="version"
                     id="version"
                     value={data.version}
@@ -82,7 +82,7 @@ export default function QuestionnaireInput({setSelectedData}) {
                     <option value="2">2</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <button className='search-button' onClick={handleDataChange}>Search</button>
             </div>
         </div>

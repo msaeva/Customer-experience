@@ -1,7 +1,7 @@
 import {useState} from "react";
-import '../css/simulation-input.css'
+import '../css/simulation-form.css'
 
-export default function SimulationInput({onDataChange}) {
+export default function SimulationForm({onDataChange}) {
     const [selectedData, setSelectedData] = useState({
         customerId: 1,
         accountTradingType: 'CFD',
@@ -28,10 +28,10 @@ export default function SimulationInput({onDataChange}) {
     }
 
     return (
-        <div className='search-container'>
-            <div>
+        <div className='simulation-search-container'>
+            <div className='search-field'>
                 <label htmlFor="accountType">Account Type:</label>
-                <select
+                <select  className="search-input"
                     name="accountType"
                     id="accountType"
                     value={selectedData.accountTradingType}
@@ -41,9 +41,9 @@ export default function SimulationInput({onDataChange}) {
                     <option value="Equity">EQUITY</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="dealer">Dealer: </label>
-                <select
+                <select className="search-input"
                     name="dealer"
                     id="dealer"
                     value={selectedData.dealer}
@@ -53,9 +53,9 @@ export default function SimulationInput({onDataChange}) {
                     <option value="T212CY">T212CY</option>
                 </select>
             </div>
-            <div>
+            <div className='search-field'>
                 <label htmlFor="version">Version:</label>
-                <select
+                <select className="search-input"
                     name="version"
                     id="version"
                     value={selectedData.version}
@@ -65,9 +65,9 @@ export default function SimulationInput({onDataChange}) {
                     <option value="2">2</option>
                 </select>
             </div>
-            <div>
+            {/*<div style={{ display: 'flex', justifyContent: 'center' }}>*/}
                 <button className='search-button' onClick={handleDataChange}>Search</button>
-            </div>
+            {/*</div>*/}
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import {API_URL_FULL} from "../shared/constants";
 
-export const getResponses = (customerId,type) => {
+export const getResponses = (customerId, type) => {
     return axios
         .get(`${API_URL_FULL}/customers/${customerId}`, {
             params: {
@@ -21,9 +21,9 @@ export const getCustomerIds = () => {
 
 export const confirmWarning = (data) => {
     return axios.put(`${API_URL_FULL}/customers/${data.customerId}/warning`, {
-        params: {
-            accountTradingType: data.accountTradingType,
-            category: data.category
-        }
+        accountTradingType: data.accountTradingType,
+        category: data.category,
+        dealer: data.dealer
+
     })
 }

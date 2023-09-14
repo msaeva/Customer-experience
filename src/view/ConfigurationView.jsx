@@ -1,11 +1,10 @@
 import {
+    addEdge,
     Background,
     Controls,
     MarkerType,
     MiniMap,
-    Position,
     ReactFlow,
-    ReactFlowProvider,
     useEdgesState,
     useNodesState
 } from "reactflow";
@@ -42,6 +41,8 @@ export default function ConfigurationView() {
 
         getQuestionnaire(data)
             .then((response) => {
+
+                console.log(response.data);
                 console.log(response.data.firstQuestionKey);
 
                 const questions = response.data.questions;
@@ -81,42 +82,46 @@ export default function ConfigurationView() {
             const question = questions.find(question => question.key === answer.nextQuestionKey) ?? null;
             index++;
             if (question === null) {
-                // const node = {
-                //     id: generateRandomString(10),
-                //     type: 'default',
-                //     data: {
-                //         label: 'Termination',
-                //     },
-                //     position: {x: 450 * horizontalSpacingIndex, y: 125 * verticalLevel},
-                // };
-                //
-                // rowQuestionEdges.push({
-                //     id: parent.id + generateRandomString(15),
-                //     source: parent.id.toString(),
-                //     target: node.id,
-                //     label: answer.key,
-                //     markerEnd: {
-                //         type: MarkerType.ArrowClosed,
-                //     },
-                // });
-                //
-                // rowQuestionNodes.push(node);
-                // horizontalSpacingIndex++;
-                continue;
-            }
+                const node = {
+                    id: generateRandomString(10),
+                    type: 'default',
+                    data: {
+                        label: 'Termination',
+                    },
+                    position: {x: 450 * horizontalSpacingIndex, y: 225 * verticalLevel},
+                };
 
-            answerKeys.push(answer.key.toString());
-
-            if (index === parent.answers.length) {
                 rowQuestionEdges.push({
-                    id: parent.id + generateRandomString(10) + question.id,
+                    id: parent.id + generateRandomString(15),
                     source: parent.id.toString(),
-                    target: question.id.toString(),
-                    label: answerKeys.join(' --> '),
+                    target: node.id,
+                    zIndex: 100,
                     markerEnd: {
                         type: MarkerType.ArrowClosed,
                     },
                 });
+
+                rowQuestionNodes.push(node);
+                horizontalSpacingIndex++;
+                continue;
+            }
+
+            answerKeys.push(answer);
+
+            if (index === parent.answers.length) {
+
+                for (let answerKey of answerKeys) {
+                    rowQuestionEdges.push({
+                        id: parent.id + generateRandomString(10) + question.id,
+                        source: parent.id.toString(),
+                        target: question.id.toString(),
+                        animated: true,
+                        sourceHandle: answerKey.questionId + answerKey.key,
+                        markerEnd: {
+                            type: MarkerType.ArrowClosed,
+                        },
+                    });
+                }
             }
 
 
@@ -133,7 +138,7 @@ export default function ConfigurationView() {
                     properties: {question},
                     label: question.key,
                 },
-                position: {x: 450 * horizontalSpacingIndex, y: 125 * verticalLevel},
+                position: {x: 450 * horizontalSpacingIndex, y: 225 * verticalLevel},
             });
             horizontalSpacingIndex++;
         }
@@ -142,23 +147,25 @@ export default function ConfigurationView() {
         setEdges((previous) => [...previous, ...rowQuestionEdges]);
     }
     const onInit = (reactFlowInstance) => console.log('flow loaded:', reactFlowInstance);
-    const onConnect = (params) => {
-        const edge = {
-            id: params.target + generateRandomString(10) + params.source,
-            source: params.source,
-            target: params.target,
-            label: 'special label',
-            markerEnd: {
-                type: MarkerType.ArrowClosed,
-            },
-        }
 
-        setEdges((previous) => [...previous, edge]);
-        console.log(params)
-    };
+    const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
+    // const onConnect = (params) => {
+    //     const edge = {
+    //         id: params.target + generateRandomString(10) + params.source,
+    //         source: params.source,
+    //         target: params.target,
+    //         label: 'special label',
+    //         markerEnd: {
+    //             type: MarkerType.ArrowClosed,
+    //         },
+    //     }
+    //
+    //     setEdges((previous) => [...previous, edge]);
+    //     console.log(params)
+    // };
 
     return (
-        <div style={{height: '100vh'}}>
+        <div style={{height: 'calc(100vh - 5rem)'}}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}

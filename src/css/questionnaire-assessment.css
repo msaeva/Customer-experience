@@ -6,6 +6,13 @@
 .questionnaire-assessment-view-container {
     width: min(100%, 30rem);
     margin: 5rem;
+
+}
+.questionnaire-category{
+    /*font-size: 1rem;*/
+    /*font-weight: bold;*/
+    margin-bottom: 1rem;
+
 }
 
 .question-answers {
@@ -53,5 +60,32 @@
     font-family: 'Raleway', sans-serif;
     font-size: 1.7rem;
     margin: 0 0 .5rem;
+}
+
+.test-result-container{
+    width: 50%;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-color: #f9f9f9;
+    margin: 4rem auto;
+}
+
+.test-result-container p {
+    margin: 10px 0;
+}
+
+.test-result-container p:first-child {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.warning {
+    color: #e74c3c; /* Red color for warnings */
+}
+
+.success {
+    color: #2ecc71; /* Green color for success */
 }
 

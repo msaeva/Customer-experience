@@ -1,5 +1,5 @@
 import '../css/responses-table.css'
-function Responses({ questions }) {
+function ResponseTable({ questions }) {
     return (
         <div className="responses-table">
             <table>
@@ -24,4 +24,4 @@ function Responses({ questions }) {
     );
 }
 
-export default Responses;
+export default ResponseTable;

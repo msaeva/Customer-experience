@@ -1,7 +1,7 @@
 import QuestionTable from "../components/QuestionTable";
 import {useEffect, useState} from "react";
 import {getQuestionnaire} from "../services/QuestionnaireService";
-import QuestionnaireInput from "../components/QuestionnaireInput";
+import QuestionnaireForm from "../components/QuestionnaireForm";
 
 export default function QuestionnaireView() {
     const [questionnaire, setQuestionnaire] = useState({});
@@ -27,7 +27,7 @@ export default function QuestionnaireView() {
 
     return (
         <div>
-            <QuestionnaireInput setSelectedData={setSelectedData}/>
+            <QuestionnaireForm setSelectedData={setSelectedData}/>
             <QuestionTable questions={questionnaire.questions}/>
         </div>
     );

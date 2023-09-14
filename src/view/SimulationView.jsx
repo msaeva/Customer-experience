@@ -4,13 +4,13 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/css';
 import '../css/questionnaire-assessment.css'
 import {QUESTIONS_VERSION} from "../shared/constants";
-import NotificationContext from "../contexts/notification.context";
 import {confirmWarning} from "../services/ResponseService";
-import SimulationInput from "../components/SimulationInput";
+import SimulationForm from "../components/SimulationForm";
 import {toast} from "react-toastify";
+import {getTestResultInformation} from "../services/TestResultService";
+import SimulationTestResult from "../components/SimulationTestResult";
 
 export default function SimulationView() {
-    const {notification, setNotification} = useContext(NotificationContext);
     const [swiperInstance, setSwiperInstance] = useState(null);
     const [questionnaire, setQuestionnaire] = useState({});
     const [currentSelectedAnswer, setCurrentSelectedAnswer] = useState(null);
@@ -20,6 +20,7 @@ export default function SimulationView() {
 
     const selectedSwiperQuestionsReference = useRef(selectedSwiperQuestions);
     const [knowledgeQuestions, setKnowledgeQuestions] = useState([]);
+    const [testResultData, setTestResultData] = useState(null);
 
     // const data = {customerId: 1, accountTradingType: 'CFD', category: 'Financial Details', version: 1, dealer: ''}
     const [selectedData, setSelectedData] = useState({
@@ -35,10 +36,6 @@ export default function SimulationView() {
     }
 
     useEffect(() => {
-
-        // 'info' | 'success' | 'warning' | 'error' | 'default';
-        toast('🦄 Wow so easy!', { type: "error" });
-
         getQuestionnaire(selectedData)
             .then((response) => {
                 setQuestionnaire(response.data);
@@ -76,58 +73,45 @@ export default function SimulationView() {
                 setSelectedSwiperQuestions(knowledgeQuestions);
             }
 
-            // TODO depending of the question category additional request should be send
             if (questionnaire.category === 'Financial Details' && response.data.status === 'OK') {
-
-                // TODO new request for the next questions / notification
-                setNotification({
-                    active: true,
-                    message: "Successful submitted answers for Financial Details",
-                    severity: 'success'
-                })
+                toast('🦄 Finished First Category !', {type: "success"});
                 setSelectedData({...selectedData, category: 'Appropriateness Test'})
-                console.log('after set notification');
-            } else if (questionnaire.category === 'Appropriateness Test' && response.data.status === 'OK') {
-                setNotification({
-                    active: true,
-                    message: "Pass",
-                    severity: 'success'
-                })
+            } else if (questionnaire.category === 'Appropriateness Test') {
+                console.log(response.data)
+                if (response.data.status === 'Pass') {
+                    toast('🦄 Successfully passed the test !', {type: "success"});
+                    console.log("Pass")
+                } else if (response.data.status === 'Strong Warning' || response.data.status === 'Soft Warning') {
+                    console.log(response.data)
+                    toast('🦄 Received Warning !', {type: "success"});
 
-                console.log("Pass")
-            } else if (questionnaire.category === 'Appropriateness Test' &&
-                (response.data.status === 'Strong Warning' || response.data.status === 'Soft Warning')) {
+                    if (window.confirm('Do you confirm receiving this warning?')) {
+                        confirmWarning(selectedData)
+                            .then((response) => {
+                                console.log('confirmed')
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                            });
+                    } else {
+                        console.log('User did not confirm the warning.');
+                    }
+                } else if (response.data.status === 'Fail') {
+                    console.log("fail")
+                    // TODO
+                } else if (response.data.status === 'Fail-Cool-Down"') {
+                    console.log("Fail with cool down");
+                }
 
-                console.log("inside confirm")
-                setNotification({
-                    active: true,
-                    message: "Successful submitted answers for Appropriateness Test.",
-                    severity: 'success'
-                })
-
-                confirmWarning(selectedData)
-                    .then((response) => {
-                        setNotification({
-                            active: true,
-                            message: "Successful submitted answers for Appropriateness Test." + response.data.status,
-                            severity: 'success'
-                        })
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                    })
-                // TODO notification and send confirmation request to the back-end
-            } else if (questionnaire.category === 'Appropriateness Test' &&
-                response.data.status === 'Fail') {
-                console.log("fail")
-                // TODO
-            } else if (questionnaire.category === 'Appropriateness Test' &&
-                response.data.status === 'Fail-CoolDown') {
-                console.log("Fail with cool down");
+                try {
+                    const testResultData = await getTestResultInformation(selectedData.customerId);
+                    console.log(testResultData.data);
+                    setTestResultData(testResultData.data)
+                } catch (error) {
+                    console.log(error);
+                }
             }
-
             // TODO should get the result total points and outcome
-
         } catch (error) {
             console.log(error);
         }
@@ -195,8 +179,8 @@ export default function SimulationView() {
         let buttonText = 'Next';
         let buttonExecuteFn = pushQuestionAnswerPair;
 
-        if(currentSelectedAnswer?.nextQuestionKey === null) {
-            if(questionnaire.category === 'Financial Details' || (question.subType === 'Knowledge' && knowledgeQuestions.length === 0)) {
+        if (currentSelectedAnswer?.nextQuestionKey === null) {
+            if (questionnaire.category === 'Financial Details' || (question.subType === 'Knowledge' && knowledgeQuestions.length === 0)) {
                 buttonText = 'Finish';
                 buttonExecuteFn = finishQuestionnaireAssessment;
             }
@@ -207,7 +191,7 @@ export default function SimulationView() {
                 className={`questionnaire-assessment-next-btn`}
                 disabled={currentSelectedAnswer === null}
                 onClick={() => buttonExecuteFn()}>
-                { buttonText }
+                {buttonText}
             </button>
         );
     }
@@ -215,54 +199,59 @@ export default function SimulationView() {
     return (
         <div>
             <div>
-                <SimulationInput onDataChange={handleDataChange}/>
+                <SimulationForm onDataChange={handleDataChange}/>
             </div>
-            <div className='questionnaire-assessment-view-wrapper'>
-                <p>{questionnaire.category}</p>
-                {/*<p>{questionnaire.questions.type}</p>*/}
-                {/*<p>{questionnaire.questions.subtype}</p>*/}
-                <div className='questionnaire-assessment-view-container'>
-                    <Swiper
-                        spaceBetween={50}
-                        slidesPerView={1}
-                        allowSlideNext={false}
-                        allowSlidePrev={false}
-                        onInit={(swiper) => setSwiperInstance(swiper)}
-                    >
-                        {
-                            selectedSwiperQuestions.map((question) => {
-                                return <SwiperSlide key={question.id}>
-                                    <div>
-                                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                                            <button
-                                                disabled={selectedSwiperQuestions.length <= 1}
-                                                className={`questionnaire-assessment-next-btn`}
-                                                onClick={() => popQuestionAnswerPair()}> Previous
-                                            </button>
-                                            <h5 className="question-title"> {question.text} </h5>
-                                            <div className="question-answers">
-                                                {
-                                                    question.answers.map((answer) => {
-                                                        return (
-                                                            <button
-                                                                className={`questionnaire-assessment-select-btn 
+            {testResultData !== null ? (
+                <SimulationTestResult data={testResultData}></SimulationTestResult>
+            ) : (
+                <div className='questionnaire-assessment-view-wrapper'>
+                    <p className='questionnaire-category'>{questionnaire.category}</p>
+                    {/*<p>{questionnaire.questions.type}</p>*/}
+                    {/*<p>{questionnaire.questions.subtype}</p>*/}
+                    <div className='questionnaire-assessment-view-container'>
+                        <Swiper
+                            spaceBetween={50}
+                            slidesPerView={1}
+                            allowSlideNext={false}
+                            allowSlidePrev={false}
+                            onInit={(swiper) => setSwiperInstance(swiper)}
+                        >
+                            {
+                                selectedSwiperQuestions.map((question) => {
+                                    return <SwiperSlide key={question.id}>
+                                        <div>
+                                            <p>{question.subType}</p>
+                                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                                <button
+                                                    disabled={selectedSwiperQuestions.length <= 1}
+                                                    className={`questionnaire-assessment-next-btn`}
+                                                    onClick={() => popQuestionAnswerPair()}> Previous
+                                                </button>
+                                                <h5 className="question-title"> {question.text} </h5>
+                                                <div className="question-answers">
+                                                    {
+                                                        question.answers.map((answer) => {
+                                                            return (
+                                                                <button
+                                                                    className={`questionnaire-assessment-select-btn 
                                                                         ${answer === currentSelectedAnswer ? 'active' : ''}`}
-                                                                key={answer.questionId + answer.key.replaceAll(' ', '')}
-                                                                onClick={() => setCurrentSelectedAnswer(answer)}> {answer.key}
-                                                            </button>
-                                                        )
-                                                    })
-                                                }
+                                                                    key={answer.questionId + answer.key.replaceAll(' ', '')}
+                                                                    onClick={() => setCurrentSelectedAnswer(answer)}> {answer.key}
+                                                                </button>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                                {renderDecisionQuestionnaireBtn(question)}
                                             </div>
-                                            { renderDecisionQuestionnaireBtn(question) }
                                         </div>
-                                    </div>
-                                </SwiperSlide>
-                            })
-                        }
-                    </Swiper>
+                                    </SwiperSlide>
+                                })
+                            }
+                        </Swiper>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }
