@@ -7,6 +7,7 @@ import {QUESTIONS_VERSION} from "../shared/constants";
 import NotificationContext from "../contexts/notification.context";
 import {confirmWarning} from "../services/ResponseService";
 import SimulationInput from "../components/SimulationInput";
+import {toast} from "react-toastify";
 
 export default function SimulationView() {
     const {notification, setNotification} = useContext(NotificationContext);
@@ -18,6 +19,7 @@ export default function SimulationView() {
     const [selectedAnswers, setSelectedAnswers] = useState([]);
 
     const selectedSwiperQuestionsReference = useRef(selectedSwiperQuestions);
+    const [knowledgeQuestions, setKnowledgeQuestions] = useState([]);
 
     // const data = {customerId: 1, accountTradingType: 'CFD', category: 'Financial Details', version: 1, dealer: ''}
     const [selectedData, setSelectedData] = useState({
@@ -32,30 +34,29 @@ export default function SimulationView() {
         return Math.floor(Math.random() * 10000) + 1;
     }
 
-    const handleDealerChange = (e) => {
-        setSelectedData({...selectedData, dealer: e.target.value});
-    };
-
-    const handleAccountTypeChange = (e) => {
-        setSelectedData({...selectedData, accountTradingType: e.target.value});
-    };
-
-    const handleVersionChange = (e) => {
-        setSelectedData({...selectedData, version: e.target.value});
-    }
-
     useEffect(() => {
+
+        // 'info' | 'success' | 'warning' | 'error' | 'default';
+        toast('🦄 Wow so easy!', { type: "error" });
+
         getQuestionnaire(selectedData)
             .then((response) => {
                 setQuestionnaire(response.data);
                 const firstQuestion = response.data.questions.find(question => question.key === response.data.firstQuestionKey);
                 setSelectedSwiperQuestions([firstQuestion]);
+                setCurrentSelectedAnswer(null);
 
-                console.log('Questionnaire Data:', questionnaire);
+                if (response.data.category === 'Appropriateness Test') {
+                    console.log(response.data.questions.filter(question => question.subType === 'Knowledge'));
+                    setKnowledgeQuestions(response.data.questions.filter(question => question.subType === 'Knowledge'));
+                }
+
+                console.log('Questionnaire Data:', response.data);
             })
             .catch((error) => {
                 console.error('Error:', error);
             })
+
     }, [selectedData]);
 
 
@@ -70,6 +71,10 @@ export default function SimulationView() {
         try {
             const data = prepareQuestionnaireAssessmentData();
             const response = await sendQuestionnaire(data, selectedData.customerId);
+
+            if (questionnaire.category === 'Appropriateness Test') {
+                setSelectedSwiperQuestions(knowledgeQuestions);
+            }
 
             // TODO depending of the question category additional request should be send
             if (questionnaire.category === 'Financial Details' && response.data.status === 'OK') {
@@ -148,9 +153,17 @@ export default function SimulationView() {
     }
 
     const pushQuestionAnswerPair = () => {
-        const nestQuestion = questionnaire.questions.find(question => question.key === currentSelectedAnswer.nextQuestionKey);
-        setSelectedSwiperQuestions((previous) => [...previous, nestQuestion]);
 
+        let nestQuestion = null;
+        if (currentSelectedAnswer.nextQuestionKey === null) {
+            console.log('inside knowledgeQuestions', knowledgeQuestions);
+            nestQuestion = knowledgeQuestions.shift();
+            setKnowledgeQuestions([...knowledgeQuestions]);
+            console.log(nestQuestion);
+        } else {
+            nestQuestion = questionnaire.questions.find(question => question.key === currentSelectedAnswer.nextQuestionKey);
+        }
+        setSelectedSwiperQuestions((previous) => [...previous, nestQuestion]);
         setSelectedAnswers((previous) => [...previous, currentSelectedAnswer]);
     }
     const popQuestionAnswerPair = () => {
@@ -178,50 +191,31 @@ export default function SimulationView() {
         setSelectedData(data);
     };
 
+    const renderDecisionQuestionnaireBtn = (question) => {
+        let buttonText = 'Next';
+        let buttonExecuteFn = pushQuestionAnswerPair;
+
+        if(currentSelectedAnswer?.nextQuestionKey === null) {
+            if(questionnaire.category === 'Financial Details' || (question.subType === 'Knowledge' && knowledgeQuestions.length === 0)) {
+                buttonText = 'Finish';
+                buttonExecuteFn = finishQuestionnaireAssessment;
+            }
+        }
+
+        return (
+            <button
+                className={`questionnaire-assessment-next-btn`}
+                disabled={currentSelectedAnswer === null}
+                onClick={() => buttonExecuteFn()}>
+                { buttonText }
+            </button>
+        );
+    }
+
     return (
         <div>
             <div>
                 <SimulationInput onDataChange={handleDataChange}/>
-                {/*    <div>*/}
-                {/*        <label htmlFor="dealer">Dealer: </label>*/}
-                {/*        <select*/}
-                {/*            name="dealer"*/}
-                {/*            id="dealer"*/}
-                {/*            value={selectedData.dealer}*/}
-                {/*            onChange={handleDealerChange}*/}
-                {/*        >*/}
-                {/*            <option value="T212UK">T212UK</option>*/}
-                {/*            <option value="T212CY">T212CY</option>*/}
-                {/*        </select>*/}
-                {/*    </div>*/}
-                {/*    <div>*/}
-                {/*        <label htmlFor="accountType">Account Type:</label>*/}
-                {/*        <select*/}
-                {/*            name="accountType"*/}
-                {/*            id="accountType"*/}
-                {/*            value={selectedData.accountTradingType}*/}
-                {/*            onChange={handleAccountTypeChange}*/}
-                {/*        >*/}
-                {/*            <option value="CFD">CFD</option>*/}
-                {/*            <option value="Equity">EQUITY</option>*/}
-                {/*        </select>*/}
-                {/*    </div>*/}
-
-                {/*    <div>*/}
-                {/*        <label htmlFor="version">Version:</label>*/}
-                {/*        <select*/}
-                {/*            name="version"*/}
-                {/*            id="version"*/}
-                {/*            value={selectedData.version}*/}
-                {/*            onChange={handleVersionChange}*/}
-                {/*        >*/}
-                {/*            <option value="1">1</option>*/}
-                {/*            <option value="2">2</option>*/}
-                {/*        </select>*/}
-                {/*    </div>*/}
-                {/*    <div>*/}
-                {/*        <button className='search-button' onClick={handleSearch}>Search</button>*/}
-                {/*    </div>*/}
             </div>
             <div className='questionnaire-assessment-view-wrapper'>
                 <p>{questionnaire.category}</p>
@@ -260,21 +254,7 @@ export default function SimulationView() {
                                                     })
                                                 }
                                             </div>
-                                            {currentSelectedAnswer?.nextQuestionKey !== null &&
-                                                <button
-                                                    className={`questionnaire-assessment-next-btn`}
-                                                    disabled={currentSelectedAnswer === null}
-                                                    onClick={() => pushQuestionAnswerPair()}>
-                                                    Next
-                                                </button>
-                                            }
-                                            {currentSelectedAnswer?.nextQuestionKey === null &&
-                                                <button
-                                                    className={`questionnaire-assessment-next-btn`}
-                                                    onClick={() => finishQuestionnaireAssessment()}>
-                                                    Finish
-                                                </button>
-                                            }
+                                            { renderDecisionQuestionnaireBtn(question) }
                                         </div>
                                     </div>
                                 </SwiperSlide>

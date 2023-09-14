@@ -7,6 +7,8 @@ import QuestionnaireView from "./view/QuestionnaireView";
 import RootLayout from "./layouts/RootLayout";
 import NotificationContext from "./contexts/notification.context";
 import {useState} from "react";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
     const [notification, setNotification] = useState({active: false, message: '', severity: 'success'});
@@ -21,6 +23,19 @@ function App() {
                         <Route path='/questions' element={<QuestionnaireView/>}></Route>
                     </Route>
                 </Routes>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                />
+                <ToastContainer />
             </NotificationContext.Provider>
         </BrowserRouter>
     );

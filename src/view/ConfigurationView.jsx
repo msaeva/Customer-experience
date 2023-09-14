@@ -12,7 +12,7 @@ import {
 
 import './overview.css';
 import 'reactflow/dist/style.css';
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {getQuestionnaire} from "../services/QuestionnaireService";
 import {generateRandomString} from "../utils/utls";
 import CustomQuestion from "../components/CustomQuestion";
@@ -81,27 +81,27 @@ export default function ConfigurationView() {
             const question = questions.find(question => question.key === answer.nextQuestionKey) ?? null;
             index++;
             if (question === null) {
-                const node = {
-                    id: generateRandomString(10),
-                    type: 'default',
-                    data: {
-                        label: 'Termination',
-                    },
-                    position: {x: 450 * horizontalSpacingIndex, y: 125 * verticalLevel},
-                };
-
-                rowQuestionEdges.push({
-                    id: parent.id + generateRandomString(15),
-                    source: parent.id.toString(),
-                    target: node.id,
-                    label: answer.key,
-                    markerEnd: {
-                        type: MarkerType.ArrowClosed,
-                    },
-                });
-
-                rowQuestionNodes.push(node);
-                horizontalSpacingIndex++;
+                // const node = {
+                //     id: generateRandomString(10),
+                //     type: 'default',
+                //     data: {
+                //         label: 'Termination',
+                //     },
+                //     position: {x: 450 * horizontalSpacingIndex, y: 125 * verticalLevel},
+                // };
+                //
+                // rowQuestionEdges.push({
+                //     id: parent.id + generateRandomString(15),
+                //     source: parent.id.toString(),
+                //     target: node.id,
+                //     label: answer.key,
+                //     markerEnd: {
+                //         type: MarkerType.ArrowClosed,
+                //     },
+                // });
+                //
+                // rowQuestionNodes.push(node);
+                // horizontalSpacingIndex++;
                 continue;
             }
 
@@ -142,6 +142,20 @@ export default function ConfigurationView() {
         setEdges((previous) => [...previous, ...rowQuestionEdges]);
     }
     const onInit = (reactFlowInstance) => console.log('flow loaded:', reactFlowInstance);
+    const onConnect = (params) => {
+        const edge = {
+            id: params.target + generateRandomString(10) + params.source,
+            source: params.source,
+            target: params.target,
+            label: 'special label',
+            markerEnd: {
+                type: MarkerType.ArrowClosed,
+            },
+        }
+
+        setEdges((previous) => [...previous, edge]);
+        console.log(params)
+    };
 
     return (
         <div style={{height: '100vh'}}>
@@ -150,6 +164,7 @@ export default function ConfigurationView() {
                 edges={edges}
                 onInit={onInit}
                 nodeTypes={nodeTypes}
+                onConnect={onConnect}
                 fitView
                 attributionPosition="top-right"
             >
