@@ -5,7 +5,7 @@ import {Outlet} from "react-router-dom";
 
 function RootLayout() {
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gridTemplateRows: 'auto 1fr'}}>
+        <div style={{ display: 'grid', gridTemplateColumns: '100%', gridTemplateRows: 'auto 1fr'}}>
             <header>
                 <NavigationMenu></NavigationMenu>
             </header>

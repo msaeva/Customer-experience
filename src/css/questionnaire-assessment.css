@@ -42,6 +42,25 @@
     cursor: not-allowed;
 }
 
+.questionnaire-assessment-previous-btn{
+    height: 3.33em;
+    width: 7rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    border: 0;
+    border-radius: .4rem;
+    background-color: #00a7e1;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color .2s ease-in-out;
+}
+
+.questionnaire-assessment-previous-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
 .questionnaire-assessment-select-btn {
     background-color: #f0f0f0;
     color: #333;

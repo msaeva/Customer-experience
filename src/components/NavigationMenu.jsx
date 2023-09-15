@@ -10,13 +10,13 @@ function NavigationMenu() {
             <nav className="navigation-menu">
                 <ul className="menu-list">
                     <li className="menu-item">
-                        <NavLink className='nav-link' to="/simulation">Simulation Page</NavLink>
+                        <NavLink to="/configuration">Configuration</NavLink>
                     </li>
                     <li className="menu-item">
                         <NavLink to="/questions">Questions And Answers</NavLink>
                     </li>
                     <li className="menu-item">
-                        <NavLink to="/configuration">Configuration</NavLink>
+                        <NavLink className='nav-link' to="/simulation">Simulation Page</NavLink>
                     </li>
                     <li className="menu-item">
                         <NavLink to="/test-results">Test Result</NavLink>

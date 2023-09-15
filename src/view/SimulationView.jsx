@@ -74,16 +74,16 @@ export default function SimulationView() {
             }
 
             if (questionnaire.category === 'Financial Details' && response.data.status === 'OK') {
-                toast('🦄 Finished First Category !', {type: "success"});
+                toast('Finished First Category !', {type: "success"});
                 setSelectedData({...selectedData, category: 'Appropriateness Test'})
             } else if (questionnaire.category === 'Appropriateness Test') {
                 console.log(response.data)
                 if (response.data.status === 'Pass') {
-                    toast('🦄 Successfully passed the test !', {type: "success"});
+                    toast('Successfully passed the test !', {type: "success"});
                     console.log("Pass")
                 } else if (response.data.status === 'Strong Warning' || response.data.status === 'Soft Warning') {
                     console.log(response.data)
-                    toast('🦄 Received Warning !', {type: "success"});
+                    toast('Received Warning !', {type: "warning"});
 
                     if (window.confirm('Do you confirm receiving this warning?')) {
                         confirmWarning(selectedData)
@@ -206,8 +206,6 @@ export default function SimulationView() {
             ) : (
                 <div className='questionnaire-assessment-view-wrapper'>
                     <p className='questionnaire-category'>{questionnaire.category}</p>
-                    {/*<p>{questionnaire.questions.type}</p>*/}
-                    {/*<p>{questionnaire.questions.subtype}</p>*/}
                     <div className='questionnaire-assessment-view-container'>
                         <Swiper
                             spaceBetween={50}
@@ -224,7 +222,7 @@ export default function SimulationView() {
                                             <div style={{display: 'flex', flexDirection: 'column'}}>
                                                 <button
                                                     disabled={selectedSwiperQuestions.length <= 1}
-                                                    className={`questionnaire-assessment-next-btn`}
+                                                    className={`questionnaire-assessment-previous-btn`}
                                                     onClick={() => popQuestionAnswerPair()}> Previous
                                                 </button>
                                                 <h5 className="question-title"> {question.text} </h5>

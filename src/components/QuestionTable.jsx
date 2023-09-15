@@ -43,6 +43,7 @@ export default function QuestionTable({questions}) {
                     <tr className='column-list'>
                         <th>Question</th>
                         <th>Answers</th>
+                        {/*<th>Next Question</th>*/}
                         <th>Points</th>
                     </tr>
                     </thead>
@@ -53,7 +54,18 @@ export default function QuestionTable({questions}) {
                             <td>
                                 <ul className="answer-list">
                                     {question.answers.map((answer) => (
-                                        <li key={answer.key}>{answer.key}</li>
+                                        <li key={answer.key}>
+                                            {answer.text} -->  {answer.nextQuestionText ? answer.nextQuestionText : "No next question"}
+                                        </li>
+                                    //     <td>
+                                    //     <ul className="answer-list">
+                                    // {question.answers.map((answer) => (
+                                    //     <li>
+                                    // {answer.text ? answer.text : "No next question"}
+                                    //     </li>
+                                    //     ))}
+                                    //     </ul>
+                                    //     </td>
                                     ))}
                                 </ul>
                             </td>
